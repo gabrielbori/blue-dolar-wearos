@@ -48,11 +48,10 @@ class MainActivity : ComponentActivity() {
     private val updateInterval = 1 * 60 * 1000L  // 1 minute in milliseconds
 
     // Mutable states for UI
-    private var compra by mutableStateOf("Fetching data")
+    var compra by mutableStateOf("Fetching data")
     private var venta by mutableStateOf("")
     private var time by mutableStateOf("")
     private var diff by mutableStateOf(0.0)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
