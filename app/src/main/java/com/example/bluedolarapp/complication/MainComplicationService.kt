@@ -40,20 +40,20 @@ class MainComplicationService : ComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (type != ComplicationType.SHORT_TEXT) return null
-        return createComplicationData(0) // Preview starts at 0
+        return createComplicationData("") // Preview starts at 0
     }
 
     override fun onComplicationRequest(request: ComplicationRequest, listener: ComplicationRequestListener) {
         Log.d(TAG, "Complication request received")
         // Retrieve the current counter, increment it, and save the new value
-        val counter = sharedPreferences.getInt(COUNTER_KEY, 0)
-        sharedPreferences.edit().putInt(COUNTER_KEY, counter).apply()
+        val counter = sharedPreferences.getString(COUNTER_KEY, "0")
+        sharedPreferences.edit().putString(COUNTER_KEY, counter).apply()
 
         // Create updated complication data with the new counter value and send it to the listener
-        listener.onComplicationData(createComplicationData(counter))
+        listener.onComplicationData(counter?.let { createComplicationData(it) })
     }
 
-    private fun createComplicationData(counter: Int): ShortTextComplicationData {
+    private fun createComplicationData(counter: String): ShortTextComplicationData {
         // Create an intent for the update action
         val ACTION_UPDATE_COMPLICATION = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"
 

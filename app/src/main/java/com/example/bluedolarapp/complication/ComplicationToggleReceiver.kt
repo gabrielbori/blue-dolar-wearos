@@ -22,14 +22,45 @@ class ComplicationToggleReceiver : BroadcastReceiver() {
             Log.d("ComplicationToggleReceiver", "Update action received")
             // For example, you can retrieve the current counter and increment it
             val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
-            val currentCounter = sharedPreferences.getInt(MainComplicationService.COUNTER_KEY, 0) + 1
-            sharedPreferences.edit().putInt(MainComplicationService.COUNTER_KEY, currentCounter).apply()
-            // Request the update for the complication
-            val requester = ComplicationDataSourceUpdateRequester.create(
-                context,
-                ComponentName(context, MainComplicationService::class.java)
-            )
-            requester.requestUpdateAll()
+            CoroutineScope(Dispatchers.IO).launch {
+                val latestCompra = fetchLatestCompra(context)
+
+                // Save the latestCompra value to SharedPreferences
+                if (latestCompra != null) {
+                    val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
+//                    sharedPreferences.edit().putString("latestCompra", latestCompra).apply()
+                    sharedPreferences.edit().putString(MainComplicationService.COUNTER_KEY, latestCompra).apply()
+
+                    // Request the update for the complication
+                    val requester = ComplicationDataSourceUpdateRequester.create(
+                        context,
+                        ComponentName(context, MainComplicationService::class.java)
+                    )
+                    requester.requestUpdateAll()
+                }
+            }
+        }
+    }
+    private suspend fun fetchLatestCompra(context: Context): String? {
+        val apiService = Retrofit.Builder()
+            .baseUrl("https://backend-ifa-production-a92c.up.railway.app/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        return try {
+            val response = apiService.getCurrencyData()
+            if (response.isSuccessful) {
+                val compra = response.body()?.panel?.find { it.titulo == "Dólar Blue" }?.compra
+                val venta = response.body()?.panel?.find { it.titulo == "Dólar Blue" }?.venta
+                "$$compra"
+            } else {
+                Log.e("ComplicationToggleReceiver", "Error fetching data: ${response.code()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("ComplicationToggleReceiver", "Exception fetching data: ${e.message}")
+            null
         }
     }
 }
