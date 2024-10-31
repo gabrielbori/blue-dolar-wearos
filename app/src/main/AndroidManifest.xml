@@ -5,19 +5,31 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+    <uses-permission android:name="com.google.android.wearable.permission.BIND_COMPLICATION_DATA_SOURCE" />
+    <uses-permission android:name="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
+        <receiver
+            android:name=".complication.ComplicationToggleReceiver"
+            android:exported="true"> <!-- Make it exported to receive broadcasts -->
+        <intent-filter>
+            <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+        </intent-filter>
+        </receiver>
         <service
             android:name=".complication.MainComplicationService"
             android:exported="true"
-            android:label="@string/complication_label"
+            android:label="Valor compra blue"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+                <category android:name="androidx.wear.watchface.complications.CATEGORY_PROVIDER" />
             </intent-filter>
 
             <meta-data

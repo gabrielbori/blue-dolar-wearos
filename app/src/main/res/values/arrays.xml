@@ -1,0 +1,7 @@
+<!-- res/values/arrays.xml -->
+<resources>
+    <string-array name="complication_supported_types">
+        <!-- Add each supported complication type here -->
+        <item>SHORT_TEXT</item>
+    </string-array>
+</resources>
