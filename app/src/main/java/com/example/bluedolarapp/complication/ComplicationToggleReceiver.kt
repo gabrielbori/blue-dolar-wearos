@@ -21,14 +21,13 @@ class ComplicationToggleReceiver : BroadcastReceiver() {
             // Log to check if the action was received
             Log.d("ComplicationToggleReceiver", "Update action received")
             // For example, you can retrieve the current counter and increment it
-            val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
             CoroutineScope(Dispatchers.IO).launch {
+
                 val latestCompra = fetchLatestCompra(context)
 
                 // Save the latestCompra value to SharedPreferences
                 if (latestCompra != null) {
                     val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
-//                    sharedPreferences.edit().putString("latestCompra", latestCompra).apply()
                     sharedPreferences.edit().putString(MainComplicationService.COUNTER_KEY, latestCompra).apply()
 
                     // Request the update for the complication

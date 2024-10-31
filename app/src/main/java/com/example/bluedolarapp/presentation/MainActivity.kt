@@ -8,6 +8,7 @@ package com.example.bluedolarapp.presentation
 
 import ApiService
 import WearApp
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -48,10 +49,47 @@ class MainActivity : ComponentActivity() {
     private val updateInterval = 1 * 60 * 1000L  // 1 minute in milliseconds
 
     // Mutable states for UI
-    var compra by mutableStateOf("Fetching data")
+    var compra by mutableStateOf("-")
     private var venta by mutableStateOf("")
-    private var time by mutableStateOf("")
+    private var time by mutableStateOf("-")
     private var diff by mutableStateOf(0.0)
+    override fun onResume() {
+        super.onResume()
+        Log.d("Mainapp", "onResume event")
+
+        lifecycleScope.launch {
+            fetchAndUpdateData()
+        }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event != null) {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    Log.d("TouchEvent", "Action: DOWN at (${event.x}, ${event.y})")
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    Log.d("TouchEvent", "Action: MOVE at (${event.x}, ${event.y})")
+                }
+                MotionEvent.ACTION_UP -> {
+                    Log.d("TouchEvent", "Action: UP at (${event.x}, ${event.y})")
+                    lifecycleScope.launch {
+                        fetchAndUpdateData()
+                    }
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    Log.d("TouchEvent", "Action: CANCEL at (${event.x}, ${event.y})")
+                }
+                MotionEvent.ACTION_OUTSIDE -> {
+                    Log.d("TouchEvent", "Action: OUTSIDE at (${event.x}, ${event.y})")
+                }
+                else -> {
+                    Log.d("TouchEvent", "Unknown action: ${event.action} at (${event.x}, ${event.y})")
+                }
+            }
+        }
+        return super.onTouchEvent(event)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,12 +101,12 @@ class MainActivity : ComponentActivity() {
             .create(ApiService::class.java)
 
         // Start periodic updates
-        lifecycleScope.launch {
-            while (true) {
-                fetchAndUpdateData()  // Fetch data from API
-                delay(updateInterval) // Wait for the next update interval
-            }
-        }
+//        lifecycleScope.launch {
+//            while (true) {
+//                fetchAndUpdateData()  // Fetch data from API
+//                delay(updateInterval) // Wait for the next update interval
+//            }
+//        }
 
         // Set the content to WearApp with manual update functionality
         setContent {
@@ -83,6 +121,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )
+        }
+        lifecycleScope.launch {
+            fetchAndUpdateData()
         }
     }
 

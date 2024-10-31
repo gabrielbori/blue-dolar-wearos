@@ -3,17 +3,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 
 interface ApiService {
-//    @GET("frontend/quotations/dolar") // replace with your API endpoint
-//    @Headers(
-//        "sec-ch-ua-platform: macOS",
-//        "Referer: https://www.dolarito.ar/",
-//        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-//        "Accept: application/json, text/plain, */*",
-//        "auth-client: 0022200edebd6eaee37427532323d88b",
-//        "sec-ch-ua: Chromium;v=130, Google Chrome;v=130, Not?A_Brand;v=99",
-//        "sec-ch-ua-mobile: ?0"
-//    )
-//    suspend fun getValue(): Response<ValueResponse>
+
 @GET("dolar/v2/general") // Correct endpoint
 @Headers(
     "sec-ch-ua-platform: macOS",
@@ -50,35 +40,3 @@ data class ApiResponse(
     val panel: List<CurrencyPanel>,
     val publicidades: List<Advertisement>
 )
-
-//data class ValueResponse(
-//    val oficial: CurrencyInfo,
-//    val bancos: CurrencyInfo,
-//    val tarjeta: CurrencyInfo,
-//    val mep: CurrencyInfo,
-//    val ccl: CurrencyInfo,
-//    val letsBit: CurrencyInfo,
-//    val plusCambio: CurrencyInfo,
-//    val ledesMep: CurrencyInfo,
-//    val ledesCcl: CurrencyInfo,
-//    val informal: CurrencyInfo,
-//    val mayorista: CurrencyInfo,
-//    val netflix: CurrencyInfo,
-//    val cripto: CurrencyInfo,
-//    val plusInversiones: CurrencyInfo,
-//    val plusCrypto: CurrencyInfo,
-//    val buenbit: CurrencyInfo,
-//    val satoshitango: CurrencyInfo,
-//    val diarco: CurrencyInfo
-//)
-//
-//data class CurrencyInfo(
-//    val name: String,
-//    val buy: Double?,
-//    val sell: Double?,
-//    val timestamp: Long,
-//    val variation: Double?,
-//    val spread: Double?,
-//    val volumen: Double?,
-//    val extra: Any?
-//)
