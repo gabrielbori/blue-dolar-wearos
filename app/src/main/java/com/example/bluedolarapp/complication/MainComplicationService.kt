@@ -11,6 +11,11 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceSe
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainComplicationService : ComplicationDataSourceService() {
 
@@ -45,13 +50,27 @@ class MainComplicationService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(request: ComplicationRequest, listener: ComplicationRequestListener) {
         Log.d(TAG, "Complication request received")
-        // Retrieve the current counter, increment it, and save the new value
-        val counter = sharedPreferences.getString(COUNTER_KEY, "0")
-        sharedPreferences.edit().putString(COUNTER_KEY, counter).apply()
 
-        // Create updated complication data with the new counter value and send it to the listener
-        listener.onComplicationData(counter?.let { createComplicationData(it) })
+        // Show a loading placeholder first
+        listener.onComplicationData(createLoadingComplicationData())
+
+        // Retrieve the counter value asynchronously
+        CoroutineScope(Dispatchers.IO).launch {
+            val counter = sharedPreferences.getString(COUNTER_KEY, "Loading...")
+            withContext(Dispatchers.Main) {
+                // Send updated complication data with the actual counter value
+                listener.onComplicationData(counter?.let { createComplicationData(it) })
+            }
+        }
     }
+
+    private fun createLoadingComplicationData(): ShortTextComplicationData {
+        return ShortTextComplicationData.Builder(
+            text = PlainComplicationText.Builder("Loading...").build(),
+            contentDescription = PlainComplicationText.Builder("Loading...").build()
+        ).build()
+    }
+
 
     private fun createComplicationData(counter: String): ShortTextComplicationData {
         // Create an intent for the update action

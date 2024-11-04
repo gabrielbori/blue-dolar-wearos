@@ -1,4 +1,4 @@
-package com.example.bluedolarapp.complication // Change to your package name
+package com.example.bluedolarapp.complication // Adjust to your package name
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -9,37 +9,54 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUp
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ApiService
-import com.example.bluedolarapp.presentation.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ComplicationToggleReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action == "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST") {
-            // Log to check if the action was received
             Log.d("ComplicationToggleReceiver", "Update action received")
-            // For example, you can retrieve the current counter and increment it
-            CoroutineScope(Dispatchers.IO).launch {
 
+            // Step 1: Set SharedPreferences to loading state
+            val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
+            sharedPreferences.edit().putString(MainComplicationService.COUNTER_KEY, "Load...").apply()
+
+            // Step 2: Show "Loading..." immediately in complication
+            updateComplication(context, "Loading...")
+
+            // Step 3: Fetch data asynchronously
+            CoroutineScope(Dispatchers.IO).launch {
                 val latestCompra = fetchLatestCompra(context)
 
-                // Save the latestCompra value to SharedPreferences
-                if (latestCompra != null) {
-                    val sharedPreferences = context.getSharedPreferences(MainComplicationService.PREFS_NAME, Context.MODE_PRIVATE)
-                    sharedPreferences.edit().putString(MainComplicationService.COUNTER_KEY, latestCompra).apply()
-
-                    // Request the update for the complication
-                    val requester = ComplicationDataSourceUpdateRequester.create(
-                        context,
-                        ComponentName(context, MainComplicationService::class.java)
-                    )
-                    requester.requestUpdateAll()
+                withContext(Dispatchers.Main) {
+                    // Step 4: If data is fetched, store and update complication
+                    if (latestCompra != null) {
+                        sharedPreferences.edit().putString(MainComplicationService.COUNTER_KEY, latestCompra).apply()
+                        updateComplication(context, latestCompra)
+                    } else {
+                        Log.e("ComplicationToggleReceiver", "Failed to fetch data")
+                    }
                 }
             }
         }
     }
+
+    // Function to update complication with given text
+    private fun updateComplication(context: Context, text: String) {
+        val requester = ComplicationDataSourceUpdateRequester.create(
+            context,
+            ComponentName(context, MainComplicationService::class.java)
+        )
+        requester.requestUpdateAll()
+
+        // Optional log for debugging
+        Log.d("ComplicationToggleReceiver", "Complication updated with text: $text")
+    }
+
+    // Function to fetch latest data from API
     private suspend fun fetchLatestCompra(context: Context): String? {
         val apiService = Retrofit.Builder()
             .baseUrl("https://backend-ifa-production-a92c.up.railway.app/api/")
@@ -51,8 +68,7 @@ class ComplicationToggleReceiver : BroadcastReceiver() {
             val response = apiService.getCurrencyData()
             if (response.isSuccessful) {
                 val compra = response.body()?.panel?.find { it.titulo == "Dólar Blue" }?.compra
-                val venta = response.body()?.panel?.find { it.titulo == "Dólar Blue" }?.venta
-                "$$compra"
+                compra?.let { "$$it" }
             } else {
                 Log.e("ComplicationToggleReceiver", "Error fetching data: ${response.code()}")
                 null
