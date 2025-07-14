@@ -59,7 +59,7 @@ class ComplicationToggleReceiver : BroadcastReceiver() {
     // Function to fetch latest data from API
     private suspend fun fetchLatestCompra(context: Context): String? {
         val apiService = Retrofit.Builder()
-            .baseUrl("https://backend-ifa-production-a92c.up.railway.app/api/")
+            .baseUrl("https://dolarapi.com/v1/dolares/blue")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
@@ -67,7 +67,7 @@ class ComplicationToggleReceiver : BroadcastReceiver() {
         return try {
             val response = apiService.getCurrencyData()
             if (response.isSuccessful) {
-                val compra = response.body()?.panel?.find { it.titulo == "Dólar Blue" }?.compra
+                val compra = response.body()?.compra
                 compra?.let { "$$it" }
             } else {
                 Log.e("ComplicationToggleReceiver", "Error fetching data: ${response.code()}")

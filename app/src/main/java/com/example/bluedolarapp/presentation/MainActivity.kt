@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
 
         // Initialize Retrofit
         apiService = Retrofit.Builder()
-            .baseUrl("https://backend-ifa-production-a92c.up.railway.app/api/")
+            .baseUrl("\"https://dolarapi.com/v1/dolares/blue")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
@@ -157,10 +157,10 @@ class MainActivity : ComponentActivity() {
             val response = apiService.getCurrencyData()
             if (response.isSuccessful) {
                 val apiResponse = response.body()
-                val dolarBlue = apiResponse?.panel?.find { it.titulo == "Dólar Blue" }
-                val latestVenta = dolarBlue?.venta
-                val latestCompra = dolarBlue?.compra
-                val cierre = dolarBlue?.cierre
+//                val dolarBlue = apiResponse?.panel?.find { it.titulo == "Dólar Blue" }
+                val latestVenta = apiResponse?.venta
+                val latestCompra = apiResponse?.compra
+                val cierre = null
 
                 arrayOf(latestVenta, latestCompra, cierre)
             } else {

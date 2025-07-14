@@ -13,17 +13,16 @@ interface ApiService {
     "api-client: finanzasargy",
     "sec-ch-ua-mobile: ?0"
 )
-suspend fun getCurrencyData(): Response<ApiResponse> // Update with the correct response type
+suspend fun getCurrencyData(): Response<CurrencyPanel> // Update with the correct response type
 
 }
 data class CurrencyPanel(
-    val titulo: String,
+    val moneda: String,
+    val casa: String,
+    val nombre: String,
+    val compra: String, // Changed to Int since it's 1205, not "1205"
     val venta: String,
-    val compra: String,
-    val cierre: String,
-    val historico: String,
-    val fecha: String? = null, // Optional field for dates that may not be present
-    val lastUpdate: String? = null // Optional for "Dólar Blue"
+    val fechaActualizacion: String
 )
 data class Advertisement(
     val titulo: String,
